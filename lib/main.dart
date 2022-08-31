@@ -1,67 +1,39 @@
+import 'package:flame/components.dart';
+import 'package:flame/experimental.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  final game = BlockPongGame();
+  runApp(GameWidget(game: game));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
+class Foundation extends PositionComponent {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PingPongClone',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
+  bool get debugMode => true;
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class BlockPongGame extends FlameGame {
+  static const double cardGap = 175.0;
+  static const double cardWidth = 1000.0;
+  static const double cardHeight = 1400.0;
+  static const double cardRadius = 100.0;
+  static final Vector2 cardSize = Vector2(cardWidth, cardHeight);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
+  Future<void> onLoad() async {
+    final foundation = Foundation()
+      ..size = Vector2(10000, 1)
+      ..position = Vector2(1000.0, 5000.0);
+
+    final world = World()..add(foundation);
+    add(world);
+
+    final camera = CameraComponent(world: world)
+      ..viewfinder.visibleGameSize =
+          Vector2(cardWidth * 8 + cardGap * 8, 4 * cardHeight + 3 * cardGap)
+      ..viewfinder.position = Vector2(cardWidth * 3.5 + cardGap * 4, 0)
+      ..viewfinder.anchor = Anchor.topCenter;
+    add(camera);
   }
 }
